@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D 交互式圣诞树 (Three.js)</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; } /* 黑色背景 */
+        canvas { display: block; } /* 确保画布填满屏幕 */
+    </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // 1. 设置场景、相机和渲染器
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 2. 添加 OrbitControls (相机交互)
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // 开启阻尼效果
+        controls.dampingFactor = 0.05;
+
+        // 3. 创建简化的圣诞树模型 (一个锥体)
+        const geometry = new THREE.ConeGeometry(2, 5, 32);
+       const material = new THREE.MeshBasicMaterial({ color: 0x009933 });
+        const christmasTree = new THREE.Mesh(geometry, material);
+        christmasTree.position.y = 2.5; // 将树抬高，使其底部位于世界中心
+        scene.add(christmasTree);
+
+        // 4. 添加灯光
+        // 环境光 (Ambient Light): 提供整体柔和光照
+        const ambientLight = new THREE.AmbientLight(0x404040); // 柔和白光
+        scene.add(ambientLight);
+
+        // 定向光 (Directional Light): 模拟太阳光/主光源
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+        directionalLight.position.set(5, 10, 7.5); // 光源位置
+        scene.add(directionalLight);
+
+        // 5. 设置相机初始位置
+        camera.position.z = 10;
+        camera.position.y = 3;
+
+        // 6. 渲染循环
+        function animate() {
+            requestAnimationFrame(animate);
+
+            controls.update(); // 必须在渲染循环中调用
+            renderer.render(scene, camera);
+        }
+
+        // 7. 响应窗口大小变化
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // 启动渲染循环
+        animate();
+
+        // =======================================================
+        // 如何实现视频中的"爆炸"效果：
+        // -------------------------------------------------------
+        // 1. **几何体分解:** 你需要用大量的 **BoxGeometry** 来替换单个的 ConeGeometry，
+        //    并将这些小方块排列成圣诞树的形状。
+        // 2. **交互触发:** 监听按钮点击或鼠标点击事件。
+        // 3. **动画实现:** 使用 Three.js 搭配一个动画库（如 **GSAP**）来控制每个小方块的
+        //    位置 (`position`) 和旋转 (`rotation`)，实现从紧密排列到分散移动的平滑过渡。
+        // 4. **材质细节:** 使用更复杂的材质 (如 `MeshStandardMaterial`) 和粒子效果来增加
+        //    视频中那种金色/黄色发光的细节。
+        // =======================================================
+
+    </script>
+</body>
+</html>
